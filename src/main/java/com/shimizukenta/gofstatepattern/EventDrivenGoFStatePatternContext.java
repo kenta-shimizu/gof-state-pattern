@@ -14,7 +14,8 @@ import java.io.IOException;
  * @author kenta-shimizu
  *
  */
-public interface EventDrivenGoFStatePatternContext<T extends EventDrivenGoFState<U>, U> extends GoFStatePatternContext<T>, Closeable {
+public interface EventDrivenGoFStatePatternContext<T extends EventDrivenGoFState<E>, E>
+		extends GoFStatePatternContext<T>, Closeable {
 	
 	/**
 	 * Start engine.
@@ -41,7 +42,8 @@ public interface EventDrivenGoFStatePatternContext<T extends EventDrivenGoFState
 	 * Fire Event Trigger.
 	 * 
 	 * @param trigger
+	 * @throws InterruptedException
 	 */
-	public void fire(U trigger);
+	public void fire(E trigger) throws InterruptedException;
 	
 }

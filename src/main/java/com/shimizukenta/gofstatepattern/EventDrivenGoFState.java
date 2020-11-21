@@ -5,8 +5,9 @@ package com.shimizukenta.gofstatepattern;
  * 
  * @author kenta-shimizu
  *
+ * @param <E>
  */
-public interface EventDrivenGoFState<T> extends GoFState {
+public interface EventDrivenGoFState<E> extends GoFState {
 	
 	/**
 	 * Returns {@code true} if entry state.
@@ -16,10 +17,27 @@ public interface EventDrivenGoFState<T> extends GoFState {
 	public boolean isEntry();
 	
 	/**
-	 * Fire Event Trigger.
+	 * Returns next-state-name if exist, otherwise {@code null}.
 	 * 
 	 * @param trigger
+	 * @return next-state-name if exist, otherwise {@code null}
 	 */
-	public void fire(T trigger);
+	public String getNextStateName(E trigger);
+	
+	/**
+	 * Execute Action before change state.
+	 * 
+	 * @param trigger
+	 * @throws InterruptedException
+	 */
+	public void beforeChangedAction(E trigger) throws InterruptedException;
+	
+	/**
+	 * Execute action after change state.
+	 * 
+	 * @param trigger
+	 * @throws InterruptedException
+	 */
+	public void afterChangedAction(E trigger) throws InterruptedException;
 	
 }
