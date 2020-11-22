@@ -24,17 +24,6 @@ public abstract class AbstractEventDrivenGoFStatePatternContext<T extends EventD
 		return execServ;
 	}
 	
-	protected void executorLoop(InterruptableRunnable r) {
-		try {
-			for ( ;; ) {
-				r.run();
-			}
-		}
-		catch ( InterruptedException ignore ) {
-		}
-	}
-	
-	
 	private final Collection<T> states;
 	
 	private boolean opened;
@@ -73,7 +62,7 @@ public abstract class AbstractEventDrivenGoFStatePatternContext<T extends EventD
 					
 				} else {
 					
-					super.setState(getEntryState());
+					super.setState(entryState);
 				}
 			}
 		}
@@ -135,64 +124,76 @@ public abstract class AbstractEventDrivenGoFStatePatternContext<T extends EventD
 		
 		synchronized ( this ) {
 			
-			String nextName = this.presentState().getNextStateName(trigger);
+			T next = getState(presentState().getNextStateName(trigger));
 			
-			if ( nextName != null ) {
+			if ( next != null ) {
 				
-				for ( T s : states ) {
-					
-					if ( s.name().equals(nextName) ) {
-						
-						s.beforeChangedAction(trigger);
-						
+				{
+					T s = getState(next.beforeChangedAction(trigger));
+					if ( s != null ) {
 						setState(s);
-						
-						executorService().execute(() -> {
-							
-							Collection<Callable<Void>> tasks = Arrays.asList(
-									() -> {
-										try {
-											s.afterChangedAction(trigger);
-										}
-										catch ( InterruptedException ignore ) {
-										}
-										return null;
-									},
-									() -> {
-										try {
-											synchronized ( cancelObj ) {
-												cancelObj.wait();
-											}
-										}
-										catch ( InterruptedException ignore ) {
-										}
-										return null;
-									}
-							);
-							
-							try {
-								executorService().invokeAny(tasks);
-							}
-							catch ( ExecutionException e ) {
-								
-								Throwable t = e.getCause();
-								
-								if ( t instanceof Error ) {
-									throw (Error)t;
-								}
-								if ( t instanceof RuntimeException ) {
-									throw (RuntimeException)t;
-								}
-							}
-							catch ( InterruptedException ignore ) {
-							}
-						});
-						
 						return;
 					}
 				}
+				
+				setState(next);
+				
+				executorService().execute(() -> {
+					
+					Collection<Callable<Void>> tasks = Arrays.asList(
+							() -> {
+								try {
+									T s = getState(next.afterChangedAction(trigger));
+									if ( s != null ) {
+										setState(s);
+									}
+								}
+								catch ( InterruptedException ignore ) {
+								}
+								return null;
+							},
+							() -> {
+								try {
+									synchronized ( cancelObj ) {
+										cancelObj.wait();
+									}
+								}
+								catch ( InterruptedException ignore ) {
+								}
+								return null;
+							}
+							);
+					
+					try {
+						executorService().invokeAny(tasks);
+					}
+					catch ( ExecutionException e ) {
+						
+						Throwable t = e.getCause();
+						
+						if ( t instanceof Error ) {
+							throw (Error)t;
+						}
+						if ( t instanceof RuntimeException ) {
+							throw (RuntimeException)t;
+						}
+					}
+					catch ( InterruptedException ignore ) {
+					}
+				});
 			}
 		}
+	}
+	
+	private T getState(String stateName) {
+		if ( stateName != null ) {
+			for ( T s : states ) {
+				if ( s.name().equals(stateName) ) {
+					return s;
+				}
+			}
+		}
+		return null;
 	}
 	
 	private T getEntryState() {

@@ -10,6 +10,9 @@ import java.io.IOException;
  * To start, {@link #open()}.<br />
  * To end, {@link #close()}.<br />
  * </p>
+ * <p>
+ * To fire event, {@link #fire(Object)}.<br />
+ * </p>
  * 
  * @author kenta-shimizu
  *
