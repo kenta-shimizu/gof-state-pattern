@@ -1,0 +1,1 @@
+package com.shimizukenta.gofstatepattern.x1;
