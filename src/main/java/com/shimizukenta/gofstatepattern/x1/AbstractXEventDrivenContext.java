@@ -359,14 +359,14 @@ public abstract class AbstractXEventDrivenContext<
 				if ( a.success() == XActionBehavior.CHANGE_STATE ) {
 					String s = a.successState();
 					if ( ! stateNames.contains(s) ) {
-						throw new IOException("\"" + sn + "\" befores: \"" + s + "\" unknown next");
+						throw new IOException("\"" + sn + "\" befores: \"" + s + "\" unknown success state");
 					}
 				}
 				
 				if ( a.failed() == XActionBehavior.CHANGE_STATE ) {
 					String s = a.failedState();
 					if ( ! stateNames.contains(s) ) {
-						throw new IOException("\"" + sn + "\" befores: \"" + s + "\" unknown next");
+						throw new IOException("\"" + sn + "\" befores: \"" + s + "\" unknown failed state");
 					}
 				}
 			}
@@ -376,14 +376,14 @@ public abstract class AbstractXEventDrivenContext<
 				if ( a.success() == XActionBehavior.CHANGE_STATE ) {
 					String s = a.successState();
 					if ( ! stateNames.contains(s) ) {
-						throw new IOException("\"" + sn + "\" afters: \"" + s + "\" unknown next");
+						throw new IOException("\"" + sn + "\" afters: \"" + s + "\" unknown success state");
 					}
 				}
 				
 				if ( a.failed() == XActionBehavior.CHANGE_STATE ) {
 					String s = a.failedState();
 					if ( ! stateNames.contains(s) ) {
-						throw new IOException("\"" + sn + "\" afters: \"" + s + "\" unknown next");
+						throw new IOException("\"" + sn + "\" afters: \"" + s + "\" unknown failed state");
 					}
 				}
 			}
